@@ -13,7 +13,7 @@ Spring Boot (트랜잭션 · 인증 · 도메인)    ← tracktory-server
        ↓
 FastAPI (AI 중계)                         ← tracktory-ai
        ↓
-LangGraph 추천 워크플로 + GraphRAG + LLM
+LangGraph 추천 워크플로 + LightRAG + LLM
 ```
 
 ## Repositories
@@ -29,7 +29,7 @@ LangGraph 추천 워크플로 + GraphRAG + LLM
 - **Frontend**: React Native
 - **Backend**: Spring Boot
 - **AI Relay**: FastAPI + LangGraph
-- **Retrieval**: GraphRAG (RAGFlow) + LLM
+- **Retrieval**: LightRAG (RAGFlow 내 구현) + LLM
 
 ## Team
 

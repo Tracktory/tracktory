@@ -15,7 +15,7 @@ Tracktory 프로젝트의 **허브 레포**. 포트폴리오 랜딩 + 교차 기
 
 ## 아키텍처 개요
 
-React Native → Spring Boot (트랜잭션·인증) → FastAPI (AI 중계) → LangGraph + GraphRAG + LLM
+React Native → Spring Boot (트랜잭션·인증) → FastAPI (AI 중계) → LangGraph + LightRAG + LLM
 
 ## 문서 정책
 
