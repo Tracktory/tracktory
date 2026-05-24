@@ -1,3 +1,8 @@
+Project tracktory {
+  database_type: 'MySQL'
+  Note: '캡스톤'
+}
+
 // ============================================================
 // 계정
 // ============================================================
@@ -101,65 +106,141 @@ Table user_completed_subject {   // 이수 과목 (속성 붙음 — 학년/학�
 // 조직 계층
 // ============================================================
 Table college {
-  id int [pk, increment]
+  id bigint [pk, increment]
+  name varchar(255) [unique, not null]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
 }
 
 Table department {
-  id int [pk, increment]
-  college_id int [ref: > college.id]
+  id bigint [pk, increment]
+  college_id bigint [ref: > college.id, not null]   // ON DELETE: RESTRICT (카탈로그 FK)
+  name varchar(255) [not null]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  indexes {
+    (college_id, name) [unique]
+  }
 }
 
 Table track {
-  id int [pk, increment]
-  department_id int [ref: > department.id]
+  id bigint [pk, increment]
+  department_id bigint [ref: > department.id, not null]   // ON DELETE: RESTRICT (카탈로그 FK)
+  name varchar(255) [not null]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  indexes {
+    (department_id, name) [unique]
+  }
 }
 
 // ============================================================
 // 교과
 // ============================================================
+Enum subject_semester {
+  first
+  second
+  both
+}
 Table subject {
-  id int [pk, increment]
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  description text [not null]
+  credit decimal(2,1) [not null]
+  semester subject_semester [not null]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+}
+
+Enum subject_type {
+  basic
+  required
+  elective
+}
+
+Enum subject_stage {
+  foundation
+  core
+  applied
+  industry
 }
 
 Table track_subject {            // Track ↔ Subject (필수/선택은 필드)
-  track_id int [ref: > track.id]
-  subject_id int [ref: > subject.id]
-  indexes { (track_id, subject_id) [pk] }
+  id bigint [pk, increment]
+  track_id bigint [ref: > track.id, not null]       // ON DELETE: RESTRICT (카탈로그 FK)
+  subject_id bigint [ref: > subject.id, not null]   // ON DELETE: RESTRICT (카탈로그 FK)
+  type subject_type [not null]
+  stage subject_stage [not null]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  indexes { (track_id, subject_id) [unique] }
+}
+
+Enum prerequisite_strength {
+  required
+  recommended
 }
 
 Table subject_prerequisite {     // Subject self-ref (선수과목)
-  subject_id int [ref: > subject.id]      // 후수
-  prerequisite_id int [ref: > subject.id] // 선수
-  indexes { (subject_id, prerequisite_id) [pk] }
+  id bigint [pk, increment]
+  subject_id bigint [ref: > subject.id, not null]      // 후수 — ON DELETE: RESTRICT (카탈로그 FK)
+  prerequisite_id bigint [ref: > subject.id, not null] // 선수 — ON DELETE: RESTRICT (카탈로그 FK)
+  strength prerequisite_strength [not null]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  indexes { (subject_id, prerequisite_id) [unique] }
 }
 
 Table subject_job {              // 과목 상세 "관련 직무"
-  subject_id int [ref: > subject.id]
-  job_id int [ref: > job.id]
-  indexes { (subject_id, job_id) [pk] }
+  id bigint [pk, increment]
+  subject_id bigint [ref: > subject.id, not null]   // ON DELETE: RESTRICT (카탈로그 FK)
+  job_id bigint [ref: > job.id, not null]           // ON DELETE: RESTRICT (카탈로그 FK)
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  indexes { (subject_id, job_id) [unique] }
 }
 
 // ============================================================
 // 진로
 // ============================================================
 Table job {
-  id int [pk, increment]
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  description text [not null]
+  dev_field_id bigint [ref: > dev_field.id, not null]   // ON DELETE: RESTRICT (카탈로그 FK)
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
 }
 
 Table tech_stack {
-  id int [pk, increment]
+  id bigint [pk, increment]
+  name varchar(255) [not null, unique]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
 }
 
-Table job_tech_stack {           // Job ↔ TechStack (필요역량 기본/심화 구분은 필드)
-  job_id int [ref: > job.id]
-  tech_stack_id int [ref: > tech_stack.id]
-  indexes { (job_id, tech_stack_id) [pk] }
+Enum job_tech_stack_stage {
+  basic
+  core
+}
+
+Table job_tech_stack {
+  id bigint [pk, increment]
+  stage job_tech_stack_stage [not null]
+  job_id bigint [ref: > job.id, not null]              // ON DELETE: RESTRICT (카탈로그 FK)
+  tech_stack_id bigint [ref: > tech_stack.id, not null] // ON DELETE: RESTRICT (카탈로그 FK)
+  indexes { (job_id, tech_stack_id) [unique] }
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
 }
 
 Table job_track {                // 직무 상세 "관련 트랙"
-  job_id int [ref: > job.id]
-  track_id int [ref: > track.id]
-  indexes { (job_id, track_id) [pk] }
+  id bigint [pk, increment]
+  job_id bigint [ref: > job.id, not null]       // ON DELETE: RESTRICT (카탈로그 FK)
+  track_id bigint [ref: > track.id, not null]   // ON DELETE: RESTRICT (카탈로그 FK)
+  indexes { (job_id, track_id) [unique] }
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
 }
 
 // ============================================================
@@ -193,32 +274,67 @@ Table work_value      { // 취업 시 중요 가치
 // ============================================================
 // 추천 트랜잭션
 // ============================================================
+Enum recommendation_trigger_source {
+  auto
+  manual
+}
+
+Enum recommendation_status {
+  active
+  superseded
+  archived
+}
+
 Table recommendation {           // aggregate root (마이페이지 추천 이력)
-  id int [pk, increment]
-  user_id int [ref: > user.id]
+  id bigint [pk, increment]
+  user_id bigint [ref: > user.id, not null]   // ON DELETE: CASCADE
+  status recommendation_status [not null, default: 'active']
+  trigger_source recommendation_trigger_source [not null]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
 }
 
-Table recommended_job {          // 직무 3~5 + 매칭률(%) — score는 필드
-  id int [pk, increment]
-  recommendation_id int [ref: > recommendation.id]
-  job_id int [ref: > job.id]
+Table recommended_job {
+  id bigint [pk, increment]
+  score int [not null]
+  reasoning text
+  recommendation_id bigint [ref: > recommendation.id, not null]   // ON DELETE: CASCADE (aggregate root 자식 lifecycle)
+  job_id bigint [ref: > job.id, not null]                          // ON DELETE: RESTRICT (카탈로그 FK)
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  indexes { (recommendation_id, job_id) [unique] }
 }
 
-Table recommended_track {        // 주2 + 보조5 (rank, score는 필드)
-  id int [pk, increment]
-  recommendation_id int [ref: > recommendation.id]
-  track_id int [ref: > track.id]
+Table recommended_track {
+  id bigint [pk, increment]
+  score int
+  reasoning text
+  is_primary boolean [not null]
+  recommendation_id bigint [ref: > recommendation.id, not null]   // ON DELETE: CASCADE (aggregate root 자식 lifecycle)
+  track_id bigint [ref: > track.id, not null]                      // ON DELETE: RESTRICT (카탈로그 FK)
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  indexes { (recommendation_id, track_id) [unique] }
 }
 
 Table roadmap {
-  id int [pk, increment]
-  recommendation_id int [ref: - recommendation.id]   // 1:1
+  id bigint [pk, increment]
+  recommendation_id bigint [ref: - recommendation.id, not null]   // ON DELETE: CASCADE (aggregate root 자식 lifecycle)
+  reasoning text
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  indexes { (recommendation_id) [unique] }
 }
 
-Table roadmap_item {             // 단계 + 순위 + 선수미이수 플래그는 필드
-  id int [pk, increment]
-  roadmap_id int [ref: > roadmap.id]
-  subject_id int [ref: > subject.id]
+Table roadmap_item {
+  id bigint [pk, increment]
+  roadmap_id bigint [ref: > roadmap.id, not null]    // ON DELETE: CASCADE (aggregate root 자식 lifecycle)
+  subject_id bigint [ref: > subject.id, not null]    // ON DELETE: RESTRICT (카탈로그 FK)
+  stage subject_stage [not null]
+  score int 
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  indexes { (roadmap_id, subject_id) [unique] }
 }
 
 // ============================================================
