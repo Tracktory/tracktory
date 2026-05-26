@@ -7,7 +7,7 @@ body:
     id: refactor-reason
     attributes:
       label: 🤔 리팩토링 이유
-      placeholder: ex) LangGraph 노드에서 RAG 호출과 LLM 호출이 한 노드에 섞여있어 단일 책임 원칙 위반
+      placeholder: ex) docs/architecture/ 에 ADR 과 design doc 이 섞여 있어 entry point 가 모호함
     validations:
       required: true
 
@@ -15,7 +15,7 @@ body:
     id: scope
     attributes:
       label: 📦 리팩토링 범위
-      placeholder: ex) RetrieveTracksNode, GraphState 스키마, src/tracktory/agent/nodes/
+      placeholder: ex) docs/architecture/ 폴더 구조 재편
     validations:
       required: true
 
@@ -26,9 +26,9 @@ body:
       value: |
         - [ ]
       placeholder: |
-        - [ ] 노드 분리 (검색 / 생성)
-        - [ ] State 스키마 업데이트
-        - [ ] 기존 테스트 통과 확인
+        - [ ] 새 폴더 구조로 파일 이동
+        - [ ] 영향 받는 cross-link 갱신
+        - [ ] 디렉토리 README index 반영
     validations:
       required: true
 
@@ -36,6 +36,6 @@ body:
     id: effect
     attributes:
       label: 💥 기대 효과
-      placeholder: ex) 노드별 테스트 용이성 증가, 부작용 격리 강화
+      placeholder: ex) 문서 종류별 entry point 명확화, 신규 기여자의 탐색 비용 감소
     validations:
       required: false

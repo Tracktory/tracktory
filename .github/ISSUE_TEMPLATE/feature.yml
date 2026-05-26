@@ -18,10 +18,9 @@ body:
       value: |
         - [ ]
       placeholder: |
-        - [ ] LangGraph 노드 구현 (예: RetrieveTracksNode)
-        - [ ] Pydantic 입출력 스키마 정의
-        - [ ] 프롬프트 템플릿 작성 (src/tracktory/prompts/)
-        - [ ] 단위 테스트 추가 (tests/unit/)
+        - [ ] ADR / 명세 본문 초안 작성
+        - [ ] 해당 디렉토리 README index 갱신
+        - [ ] 관련 docs 와의 cross-link 확인
     validations:
       required: true
 
@@ -29,6 +28,6 @@ body:
     id: related
     attributes:
       label: 🔗 관련 정보
-      placeholder: 기능명세서 ID, 관련 이슈 번호 등
+      placeholder: 관련 ADR / 명세 파일 경로, 이슈 번호 등
     validations:
       required: false

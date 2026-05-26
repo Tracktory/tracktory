@@ -20,9 +20,9 @@ body:
         2.
         3.
       placeholder: |
-        1. FastAPI 서버 실행 (`uv run uvicorn ...`)
-        2. /recommend 엔드포인트 호출
-        3. LangGraph 그래프의 retrieve_tracks 노드에서 예외 발생
+        1. docs/api/recommendation.md § 응답 스키마 확인
+        2. 실제 서비스 응답과 비교
+        3. `next_actions` 필드명이 불일치
     validations:
       required: false
 
@@ -33,8 +33,7 @@ body:
       value: |
         - [ ]
       placeholder: |
-        - [ ] 버그 원인 파악
-        - [ ] 수정 구현
-        - [ ] 재현 시나리오 테스트 추가
+        - [ ] 원본 문서에서 사실 확인
+        - [ ] 본문 수정 + 영향 받는 cross-link 갱신
     validations:
       required: true
