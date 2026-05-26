@@ -13,51 +13,88 @@ Table user {
 // 프로필 (온보딩 결과)
 // ============================================================
 Table user_profile {
-  id int [pk, increment]
-  user_id int [ref: - user.id]   // 1:1
+  id bigint [pk, increment]
+  user_id bigint [ref: - user.id]   // 1:1
   department_id int [ref: > department.id]  // 소속 (학부)
+  student_id char(7) [unique, not null]   // 학번
+  current_year tinyint [not null] // 현재 학년 (1~4)
+  name varchar(50) [not null] // 이름
+  profile_image_url varchar(500)
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
 }
 
 Table user_track {               // User ↔ Track (1트랙/2트랙 — 구분은 필드)
-  user_id int [ref: > user.id]
+  id bigint [pk, increment]
+  user_id bigint [ref: > user.id]
   track_id int [ref: > track.id]
-  indexes { (user_id, track_id) [pk] }
+  track_order tinyint [not null]
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+  indexes {
+    (user_id, track_id) [unique]
+    (user_id, track_order) [unique]
+  }
 }
 
 Table user_interest {            // User ↔ Interest (1~5)
-  user_id int [ref: > user.id]
+  id bigint [pk, increment]
+  user_id bigint [ref: > user.id]
   interest_id int [ref: > interest.id]
-  indexes { (user_id, interest_id) [pk] }
+  created_at timestamp [default: `now()`, not null]
+  indexes { (user_id, interest_id) [unique] }
 }
 
 Table user_dev_field {           // User ↔ DevField (1~3)
-  user_id int [ref: > user.id]
+  id bigint [pk, increment]
+  user_id bigint [ref: > user.id]
   dev_field_id int [ref: > dev_field.id]
-  indexes { (user_id, dev_field_id) [pk] }
+  created_at timestamp [default: `now()`, not null]
+  indexes { (user_id, dev_field_id) [unique] }
 }
 
 Table user_company_type {        // User ↔ CompanyType
-  user_id int [ref: > user.id]
+  id bigint [pk, increment]
+  user_id bigint [ref: > user.id]
   company_type_id int [ref: > company_type.id]
-  indexes { (user_id, company_type_id) [pk] }
+  created_at timestamp [default: `now()`, not null]
+  indexes { (user_id, company_type_id) [unique] }
 }
 
 Table user_work_value {          // User ↔ WorkValue (최대 3)
-  user_id int [ref: > user.id]
+  id bigint [pk, increment]
+  user_id bigint [ref: > user.id]
   work_value_id int [ref: > work_value.id]
-  indexes { (user_id, work_value_id) [pk] }
+  created_at timestamp [default: `now()`, not null]
+  indexes { (user_id, work_value_id) [unique] }
 }
 
 Table user_tech_stack {          // 공부해본 기술 (UI: Python/Java/...)
-  user_id int [ref: > user.id]
+  id bigint [pk, increment]
+  user_id bigint [ref: > user.id]
   tech_stack_id int [ref: > tech_stack.id]
-  indexes { (user_id, tech_stack_id) [pk] }
+  created_at timestamp [default: `now()`, not null]
+  indexes { (user_id, tech_stack_id) [unique] }
+}
+
+Table user_tech_stack_custom {  // 자유 입력값
+  id bigint [pk, increment]
+  user_id bigint [ref: > user.id]
+  label varchar(40) [not null]
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+  indexes { (user_id, label) [unique] }
 }
 
 Table user_completed_subject {   // 이수 과목 (속성 붙음 — 학년/학기)
-  id int [pk, increment]
-  user_id int [ref: > user.id]
+  id bigint [pk, increment]
+  user_id bigint [ref: > user.id]
   subject_id int [ref: > subject.id]
+  year tinyint [not null]
+  semester tinyint [not null]
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+  indexes { (user_id, subject_id) [unique] }
 }
 
 // ============================================================
@@ -127,11 +164,31 @@ Table job_track {                // 직무 상세 "관련 트랙"
 
 // ============================================================
 // 분류/카테고리
-// ============================================================
-Table interest        { id int [pk, increment] }
-Table dev_field       { id int [pk, increment] }
-Table company_type    { id int [pk, increment] }
-Table work_value      { id int [pk, increment] }
+// ================================== ==========================
+Table interest        { // 관심 분야
+    id int [pk, increment]
+    code varchar(40) [unique, not null]
+    created_at timestamp [default: `now()`, not null]
+    updated_at timestamp [default: `now()`, not null]
+}
+Table dev_field       { // 공부해 본 분야
+    id int [pk, increment]
+    code varchar(40) [unique, not null]
+    created_at timestamp [default: `now()`, not null]
+    updated_at timestamp [default: `now()`, not null]
+}
+Table company_type    { // 희망하는 회사 유형
+    id int [pk, increment]
+    code varchar(40) [unique, not null]
+    created_at timestamp [default: `now()`, not null]
+    updated_at timestamp [default: `now()`, not null]
+}
+Table work_value      { // 취업 시 중요 가치
+    id int [pk, increment]
+    code varchar(40) [unique, not null]
+    created_at timestamp [default: `now()`, not null]
+    updated_at timestamp [default: `now()`, not null]
+}
 
 // ============================================================
 // 추천 트랜잭션
@@ -165,14 +222,5 @@ Table roadmap_item {             // 단계 + 순위 + 선수미이수 플래그�
 }
 
 // ============================================================
-// 챗봇
+// 챗봇 - 미포함
 // ============================================================
-Table chat_session {
-  id int [pk, increment]
-  user_id int [ref: > user.id]
-}
-
-Table chat_message {
-  id int [pk, increment]
-  session_id int [ref: > chat_session.id]
-}
