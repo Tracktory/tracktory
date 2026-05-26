@@ -2,7 +2,11 @@
 // 계정
 // ============================================================
 Table user {
-  id int [pk, increment]
+  id            bigint       [pk, increment]
+  email         varchar(255) [unique, not null]  // 로그인 이메일
+  password_hash varchar(255) [not null]          // 해시된 비밀번호
+  created_at    timestamp    [default: `now()`, not null]
+  updated_at    timestamp    [default: `now()`, not null]
 }
 
 // ============================================================
