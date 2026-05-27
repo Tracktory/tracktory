@@ -340,24 +340,33 @@ Table recommended_track {
 
 Table roadmap {
   id bigint [pk, increment]
-  recommendation_id bigint [ref: - recommendation.id, not null]   // ON DELETE: CASCADE (aggregate root 자식 lifecycle)
+  recommendation_id bigint [ref: - recommendation.id, not null]   // ON DELETE: CASCADE
   reasoning text
   created_at timestamp [not null, default: `now()`]
   updated_at timestamp [not null, default: `now()`]
   indexes { (recommendation_id) [unique] }
 }
 
-Table roadmap_item {
+Table roadmap_semester {           // 추천 로드맵의 학기 그룹 entity
   id bigint [pk, increment]
-  roadmap_id bigint [ref: > roadmap.id, not null]    // ON DELETE: CASCADE (aggregate root 자식 lifecycle)
-  subject_id bigint [ref: > subject.id, not null]    // ON DELETE: RESTRICT (카탈로그 FK)
-  stage subject_stage [not null]
-  score decimal(3,2)
-  year int [not null]
-  semester int [not null]
+  roadmap_id bigint [ref: > roadmap.id, not null]   // ON DELETE: CASCADE
+  year tinyint [not null]                            // 대학 학년 1~4
+  semester tinyint [not null]                        // 학기 1 or 2
+  stage subject_stage [not null]                     // 학기 그룹 단계 라벨 (UI 학기 헤더의 [기초]/[핵심]/[응용]/[산학])
+  reasoning text                                     // 학기 단위 메시지 (예: "이번 학기는 트랙 기초 단계입니다")
   created_at timestamp [not null, default: `now()`]
   updated_at timestamp [not null, default: `now()`]
-  indexes { (roadmap_id, subject_id) [unique] }
+  indexes { (roadmap_id, year, semester) [unique] }
+}
+
+Table roadmap_item {
+  id bigint [pk, increment]
+  roadmap_semester_id bigint [ref: > roadmap_semester.id, not null]   // ON DELETE: CASCADE
+  subject_id bigint [ref: > subject.id, not null]                      // ON DELETE: RESTRICT (카탈로그 FK)
+  score int                                                            // 과목 단위 점수 (시너지 / 적합도 등 — 알고리즘 미확정)
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  indexes { (roadmap_semester_id, subject_id) [unique] }
 }
 
 // ============================================================
