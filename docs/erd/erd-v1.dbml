@@ -152,12 +152,14 @@ Table subject {
   updated_at timestamp [not null, default: `now()`]
 }
 
+// 졸업요건 카테고리 (전공기초/필수/선택)
 Enum subject_type {
   basic
   required
   elective
 }
 
+// 커리큘럼 학습 단계
 Enum subject_stage {
   foundation
   core
@@ -207,7 +209,6 @@ Table job {
   id bigint [pk, increment]
   name varchar(255) [not null]
   description text [not null]
-  dev_field_id bigint [ref: > dev_field.id, not null]   // ON DELETE: RESTRICT (카탈로그 FK)
   created_at timestamp [not null, default: `now()`]
   updated_at timestamp [not null, default: `now()`]
 }
@@ -217,6 +218,15 @@ Table tech_stack {
   name varchar(255) [not null, unique]
   created_at timestamp [not null, default: `now()`]
   updated_at timestamp [not null, default: `now()`]
+}
+
+Table job_dev_field {
+  id bigint [pk, increment]
+  dev_field_id bigint [ref: > dev_field.id, not null]   // ON DELETE: RESTRICT (카탈로그 FK)
+  job_id bigint [ref: > job.id, not null]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  indexes { (job_id, dev_field_id) [unique] }
 }
 
 Enum job_tech_stack_stage {
@@ -245,6 +255,7 @@ Table job_track {                // 직무 상세 "관련 트랙"
 
 // ============================================================
 // 분류/카테고리
+<<<<<<< HEAD
 // ================================== ==========================
 Table interest        { // 관심 분야
     id int [pk, increment]
@@ -270,6 +281,13 @@ Table work_value      { // 취업 시 중요 가치
     created_at timestamp [default: `now()`, not null]
     updated_at timestamp [default: `now()`, not null]
 }
+=======
+// ============================================================
+Table interest        { id bigint [pk, increment] }
+Table dev_field       { id bigint [pk, increment] }
+Table company_type    { id bigint [pk, increment] }
+Table work_value      { id bigint [pk, increment] }
+>>>>>>> ef5ea97 (docs: 리뷰 코멘트 및 일부 누락 컬럼 추가)
 
 // ============================================================
 // 추천 트랜잭션
@@ -280,9 +298,9 @@ Enum recommendation_trigger_source {
 }
 
 Enum recommendation_status {
-  active
-  superseded
-  archived
+  active      //현재 사용자에게 노출 중인 최신 추천
+  superseded  //새 추천으로 대체됨 — 더 이상 메인 노출 X, 마이페이지 이력으로만 조회
+  archived    //사용자가 명시적으로 숨김 또는 일정 기간 경과로 자동 보관
 }
 
 Table recommendation {           // aggregate root (마이페이지 추천 이력)
@@ -290,6 +308,9 @@ Table recommendation {           // aggregate root (마이페이지 추천 이�
   user_id bigint [ref: > user.id, not null]   // ON DELETE: CASCADE
   status recommendation_status [not null, default: 'active']
   trigger_source recommendation_trigger_source [not null]
+  track_combination_score int                          // 조합 시너지 점수 (0~100, recommended_track.score 와 일관)
+  track_combination_summary varchar(255)               // "웹 공학 + AI" 같은 한 줄 요약
+  track_combination_reasoning text                     // LLM 산출 조합 분석
   created_at timestamp [not null, default: `now()`]
   updated_at timestamp [not null, default: `now()`]
 }
@@ -331,7 +352,9 @@ Table roadmap_item {
   roadmap_id bigint [ref: > roadmap.id, not null]    // ON DELETE: CASCADE (aggregate root 자식 lifecycle)
   subject_id bigint [ref: > subject.id, not null]    // ON DELETE: RESTRICT (카탈로그 FK)
   stage subject_stage [not null]
-  score int 
+  score decimal(3,2)
+  year int [not null]
+  semester int [not null]
   created_at timestamp [not null, default: `now()`]
   updated_at timestamp [not null, default: `now()`]
   indexes { (roadmap_id, subject_id) [unique] }
