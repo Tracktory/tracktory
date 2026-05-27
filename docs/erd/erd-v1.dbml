@@ -255,7 +255,6 @@ Table job_track {                // 직무 상세 "관련 트랙"
 
 // ============================================================
 // 분류/카테고리
-<<<<<<< HEAD
 // ================================== ==========================
 Table interest        { // 관심 분야
     id int [pk, increment]
@@ -281,13 +280,6 @@ Table work_value      { // 취업 시 중요 가치
     created_at timestamp [default: `now()`, not null]
     updated_at timestamp [default: `now()`, not null]
 }
-=======
-// ============================================================
-Table interest        { id bigint [pk, increment] }
-Table dev_field       { id bigint [pk, increment] }
-Table company_type    { id bigint [pk, increment] }
-Table work_value      { id bigint [pk, increment] }
->>>>>>> ef5ea97 (docs: 리뷰 코멘트 및 일부 누락 컬럼 추가)
 
 // ============================================================
 // 추천 트랜잭션
