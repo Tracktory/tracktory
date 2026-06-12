@@ -1,5 +1,6 @@
 CLAUDE.local.md
 .claude/
 .omc/
+.omx/
 .DS_Store
 *.dbdiagram

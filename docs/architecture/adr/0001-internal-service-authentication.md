@@ -33,8 +33,8 @@ FastAPI 는 내부 네트워크에만 노출하고 public 인터넷 진입을 �
 
 ### Positive
 
-- 구현 비용이 가장 가볍습니다(헤더 부착 + 헤더 검증). OWASP Microservices Security Cheat Sheet 가 소규모 팀 표준으로 권고하는 패턴입니다.
-- 검증 레이어가 헤더 기반으로 유지되므로, production 전환 시 transport 만 mTLS 로 교체하면 됩니다(two-way door).
+- 검토한 대안 중 구현·운영 비용이 가장 낮습니다(헤더 부착 + 헤더 검증). OWASP Microservices Security Cheat Sheet 는 서비스 간 인증 패턴으로 mTLS 와 token-based 인증을 설명하며, 외부 사용자 토큰을 내부 서비스에 그대로 재사용하는 방식은 위험하다고 봅니다. 본 결정은 그 방향성과 맞추되 MVP 규모에 맞게 보안 토큰 서비스 대신 환경변수 기반 preshared token 으로 단순화한 절충안입니다.
+- 헤더 기반 인증 경계를 유지한 채, 이후 mTLS 또는 OAuth2 client credentials 로 승격하기 쉽습니다.
 - 사용자 식별이 필수 계약이므로 인증 연동 시점에 제거할 임시 코드가 없습니다.
 
 ### Negative
@@ -50,11 +50,11 @@ FastAPI 는 내부 네트워크에만 노출하고 public 인터넷 진입을 �
 
 | ID | Description | Why rejected |
 |----|-------------|--------------|
-| ALT-1 | mTLS 직접 운영 | 인증서 발급·rotation 운영 부담이 소규모 팀에 과중. service mesh 없이 직접 운영하는 소규모 팀은 드물다는 실무 합의. |
+| ALT-1 | mTLS 자체보다 인증서 발급·trust | bootstrap·revocation·rotation 운영 부담이 MVP 범위에 비해 큽니다. |
 | ALT-2 | OAuth2 client credentials grant | Keycloak/Auth0 등 auth server 셋업 비용이 규모 대비 과투자. |
 | ALT-3 | Service mesh (Istio/Linkerd) | k8s 운영 인력 없음. |
-| ALT-4 | 내부 네트워크 신뢰 (무인증) | SSRF·lateral movement 한 건으로 무너짐. 알려진 안티패턴. |
-| ALT-5 | 사용자 JWT 를 FastAPI 가 재검증 | 게이트키퍼(Spring Boot) 역할 무력화 + 검증 로직 이중화. OWASP 명시 안티패턴. |
+| ALT-4 | 내부 네트워크 신뢰 (무인증) | SSRF·lateral movement 한 건으로 무너짐. 내부 서비스 직접 접근을 막는 추가 인증이 없어 SSRF·lateral movement 시 피해 범위가 커집니다. |
+| ALT-5 | 사용자 JWT 를 FastAPI 가 재검증 | 게이트키퍼(Spring Boot) 역할 무력화 + 검증 로직 이중화. 외부 사용자 토큰을 내부 서비스 계약에 직접 결합해 공격면과 검증 로직 중복을 늘립니다. OWASP는 외부 access token 재사용보다 내부용 identity representation 전파를 권장합니다. |
 | ALT-6 | 사용자 식별자를 MVP 동안 더미 값으로 고정 | 모든 요청이 단일 익명 버킷으로 묶여 사용자별 캐싱·이력·트레이싱 분리 불가. 필수 헤더 계약으로 처음부터 강제하는 쪽이 이후 제거 비용 0. |
 
 ## References
