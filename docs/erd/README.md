@@ -4,7 +4,8 @@ Tracktory 데이터 모델 단일 출처. ERD 원본은 [`erd-v1.dbml`](./erd-v1
 
 ## 시각화
 
-dbdiagram.io 공유 링크: <!-- TODO: dbdiagram import 후 링크 박제 -->
+<img width="1905" height="2024" alt="Tracktory-erd" src="https://github.com/user-attachments/assets/9aa7865a-8bbc-423c-8e53-6251d94df4ce" />
+
 
 ## 관련 문서
 
